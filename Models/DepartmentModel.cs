@@ -8,6 +8,8 @@ namespace BackendApi.Api.Models
         public Guid? departmentid { get; set; }
         public Guid? headid { get; set; }
         public string? name { get; set; }
+        public int? totalstaff { get; set; }
+        public int? patientcounttoday { get; set; }
         public string? description { get; set; }
         public bool inactive { get; set; } = false;
     }

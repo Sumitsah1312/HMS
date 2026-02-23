@@ -86,6 +86,10 @@ namespace BackendApi.Api.Services
                         headid = d.headid,
                         inactive = d.inactive
                     }).ToListAsync();
+                foreach(var it in list){
+                    it.totalstaff=await _ctx.Staff.CountAsync(x=>x.departmentid==it.departmentid && x.tenantid.ToString()==it.tenantid);
+                    it.patientcounttoday=await _ctx.PatientDoctorVisits.CountAsync(x=>x.departmentid==it.departmentid && x.tenantid.ToString()==it.tenantid);
+                }
 
                 result.Success = true;
                 result.data = list;

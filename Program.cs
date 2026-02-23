@@ -57,6 +57,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<ISuperAdminRepository, SuperAdminRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

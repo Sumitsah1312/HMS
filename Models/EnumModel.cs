@@ -9,4 +9,11 @@ namespace BackendApi.Api.Models
         doctor,
         patient
     }
+    public enum EnumModelVisitStatus
+    {
+        completed,
+        ongoing,
+        waiting,
+        cancelled
+    }
 }

@@ -19,6 +19,8 @@ namespace BackendApi.Api.Entity
 
         [StringLength(100)]
         public string doctorname { get; set; } = null!;
+        public string? status { get; set; } 
+        public string? token { get; set; } 
 
         public bool inactive { get; set; } = false;
 

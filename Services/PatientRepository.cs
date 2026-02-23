@@ -11,47 +11,49 @@ namespace BackendApi.Api.Services
     public class PatientRepository(
         DefaultDbContext _ctx) : IPatientRepository
     {
-        public async Task<ResponseModel> CreatePatientTokenAsync(CreateNewPatientToken model,Guid tenantid, string userid)
+        public async Task<ResponseModel> CreatePatientTokenAsync(CreateNewPatientToken model, Guid tenantid, string userid)
         {
-             using var transaction = await _ctx.Database.BeginTransactionAsync();
-            
+            using var transaction = await _ctx.Database.BeginTransactionAsync();
+
             try
             {
-               
-                var result=new ResponseModel();
 
-                
+                var result = new ResponseModel();
+
+
                 if (model.patientid == null || model.patientid == Guid.Empty)
                 {
                     // Validation for New Patient
-                    if (string.IsNullOrEmpty(model.patientname)){
-                        result.Success=false;
-                        result.Message="Patient name is required for new registration.";
+                    if (string.IsNullOrEmpty(model.patientname))
+                    {
+                        result.Success = false;
+                        result.Message = "Patient name is required for new registration.";
                         return result;
                     }
-                    if (model.dob == null){
-                        result.Success=false; 
-                        result.Message="Date of birth is required for new registration.";
+                    if (model.dob == null)
+                    {
+                        result.Success = false;
+                        result.Message = "Date of birth is required for new registration.";
                         return result;
                     }
-                    
-                    
+
+
                     // Create New Patient
                     var newPatient = new Patient
                     {
-                       
+
                         tenantid = tenantid,
                         name = model.patientname,
                         dob = model.dob.Value,
                         createddate = DateTime.UtcNow,
-                        createdby=userid,
+                        createdby = userid,
                         inactive = false
                     };
 
                     await _ctx.Patients.AddAsync(newPatient);
                     await _ctx.SaveChangesAsync();
-                    model.patientid= newPatient.patientid;
-                    
+                    model.patientid = newPatient.patientid;
+
                 }
                 else
                 {
@@ -59,44 +61,61 @@ namespace BackendApi.Api.Services
                     var patientExists = await _ctx.Patients.AnyAsync(p => p.patientid == model.patientid && p.tenantid == tenantid);
                     if (!patientExists)
                     {
-                        result.Success=false;
-                        result.Message="Patient not found.";
+                        result.Success = false;
+                        result.Message = "Patient not found.";
                         return result;
                     }
 
-                    
-                }
 
+                }
+                var today = DateTime.UtcNow.Date;
+                var tomorrow = today.AddDays(1);
+
+                var todayCount = await _ctx.PatientDoctorVisits
+                    .Where(v => v.tenantid == tenantid
+                             && v.doctorid == model.doctorid
+                             && v.createddate >= today
+                             && v.createddate < tomorrow)
+                    .CountAsync();
+
+                var doctorPrefix = string.IsNullOrEmpty(model.doctorid.ToString())
+                    ? "DOC"
+                    : model.doctorid.ToString().Replace(" ", "")
+                        .ToUpper()
+                        .Substring(0, Math.Min(3, model.doctorid.ToString().Replace(" ", "").Length));
+
+                var visitToken = $"{doctorPrefix}_{today:yyyyMMdd}_{todayCount + 1}";
                 // Create Visit Entry
                 var visit = new PatientDoctorVisit
                 {
-                   
                     tenantid = tenantid,
-                    patientid = model.patientid??Guid.Empty,
+                    patientid = model.patientid ?? Guid.Empty,
                     departmentid = model.departmentid,
                     doctorid = model.doctorid,
                     departmentname = model.departmentname ?? "Unknown",
                     doctorname = model.doctorname ?? "Unknown",
+                    status = EnumModelVisitStatus.waiting.ToString(),
+                    token=visitToken,
                     createddate = DateTime.UtcNow,
-                    createdby=userid,
+                    createdby = userid,
                     inactive = false
                 };
 
                 await _ctx.PatientDoctorVisits.AddAsync(visit);
                 await _ctx.SaveChangesAsync();
 
-                 await transaction.CommitAsync();
+                await transaction.CommitAsync();
 
-                result.Success=true;
-                result.Message="Process Completed Successfully.";
+                result.Success = true;
+                result.Message = "Process Completed Successfully.";
                 return result;
 
-                
+
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return new ResponseModel{Success=false,Message= $"Error creating token: {ex.Message}"};
+                return new ResponseModel { Success = false, Message = $"Error creating token: {ex.Message}" };
             }
         }
 
@@ -129,7 +148,7 @@ namespace BackendApi.Api.Services
                 result.Message = "Invalid tenant.";
                 return result;
             }
-            var staffList = await _ctx.Staff.Where(s => s.tenantid == tenantid && s.departmentid==departmentid && !s.inactive).ToListAsync();
+            var staffList = await _ctx.Staff.Where(s => s.tenantid == tenantid && s.departmentid == departmentid && !s.inactive).ToListAsync();
 
             if (staffList == null || staffList.Count == 0)
             {
@@ -152,7 +171,7 @@ namespace BackendApi.Api.Services
             result.data = list;
             return result;
         }
-         public async Task<DDResponseModel> GetDepartmentDropdown(Guid? tenantid)
+        public async Task<DDResponseModel> GetDepartmentDropdown(Guid? tenantid)
         {
             var result = new DDResponseModel();
             if (tenantid == null)

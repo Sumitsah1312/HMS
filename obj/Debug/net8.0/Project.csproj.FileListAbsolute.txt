@@ -122,3 +122,4 @@ C:\Sumit Data\Project me\BackendApi\Project\bin\Debug\net8.0\Microsoft.IdentityM
 C:\Sumit Data\Project me\BackendApi\Project\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Sumit Data\Project me\BackendApi\Project\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Sumit Data\Project me\BackendApi\Project\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+c:\Sumit Data\Project me\BackendApi\Project\obj\Debug\net8.0\Project.sourcelink.json
