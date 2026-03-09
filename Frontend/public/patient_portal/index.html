@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Portal | City Hospital</title>
+    <script>
+        // Redirect to the new React App Patient Entry
+        window.location.href = '/portal/YOUR_TENANT_ID/entry';
+    </script>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --hospital-blue: #004a99;
+            --hospital-teal: #008080;
+            --bg-gradient: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3,
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        .portal-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .portal-container.form-expanded {
+            max-width: 700px;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            color: var(--hospital-blue);
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary {
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            background: var(--hospital-blue);
+            border: none;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #003366;
+            transform: translateY(-2px);
+        }
+
+        .step-form {
+            display: none;
+        }
+
+        .step-form.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-text {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .loading-spinner {
+            display: none;
+        }
+
+        .gender-group {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="portal-container" id="mainContainer">
+        <div class="logo-section">
+            <i data-lucide="hospital" class="logo-icon" size="48"></i>
+            <h2 class="mt-2 text-primary">City Hospital</h2>
+            <p class="text-muted">Patient Portal</p>
+        </div>
+
+        <!-- Step 1: Mobile Number Validation -->
+        <div id="step-mobile" class="step-form active">
+            <h4 class="mb-4">Welcome back</h4>
+            <form id="mobileForm">
+                <div class="mb-4">
+                    <label for="mobileNumber" class="form-label">Mobile Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0">+91</span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="mobileNumber"
+                            placeholder="Enter 10-digit number" maxlength="10">
+                    </div>
+                    <div id="mobileError" class="error-message">Please enter a valid 10-digit Indian mobile number.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                    <span>Continue</span>
+                    <i data-lucide="chevron-right" class="ms-2" size="18"></i>
+                    <div class="spinner-border spinner-border-sm loading-spinner ms-2" role="status"></div>
+                </button>
+            </form>
+            <p class="mt-4 info-text text-center">By continuing, you agree to our Terms of Service.</p>
+        </div>
+
+        <!-- Step 2: Login (If Patient Exists) -->
+        <div id="step-login" class="step-form">
+            <button class="btn btn-link p-0 mb-3 back-btn text-decoration-none d-flex align-items-center">
+                <i data-lucide="arrow-left" size="16" class="me-1"></i> Back
+            </button>
+            <h4 class="mb-4">Login to your account</h4>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label">Mobile Number</label>
+                    <input type="text" class="form-control bg-light" id="loginMobile" readonly>
+                </div>
+                <div class="mb-4">
+                    <label for="loginPassword" class="form-label">Password</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="loginPassword"
+                            placeholder="Enter your password">
+                    </div>
+                    <div id="loginError" class="error-message">Invalid password. Please try again.</div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                    <span>Login</span>
+                    <i data-lucide="log-in" class="ms-2" size="18"></i>
+                    <div class="spinner-border spinner-border-sm loading-spinner ms-2" role="status"></div>
+                </button>
+            </form>
+            <p class="mt-3 text-center"><a href="#" class="info-text">Forgot Password?</a></p>
+        </div>
+
+        <!-- Step 3: Registration (If Patient Does Not Exist) -->
+        <div id="step-register" class="step-form">
+            <button class="btn btn-link p-0 mb-3 back-btn text-decoration-none d-flex align-items-center">
+                <i data-lucide="arrow-left" size="16" class="me-1"></i> Back
+            </button>
+            <h4 class="mb-4">Patient Registration</h4>
+            <form id="registerForm" class="row g-3">
+                <div class="col-12">
+                    <label for="regFullName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="regFullName" placeholder="Enter your full name"
+                        required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Mobile Number</label>
+                    <input type="text" class="form-control bg-light" id="regMobile" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="regEmail" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="regEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Gender</label>
+                    <div class="gender-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gender" id="genderMale" value="Male"
+                                checked>
+                            <label class="form-check-label" for="genderMale">Male</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="Female">
+                            <label class="form-check-label" for="genderFemale">Female</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="regDob" class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" id="regDob" required>
+                </div>
+                <div class="col-12">
+                    <label for="regAddress" class="form-label">Permanent Address</label>
+                    <textarea class="form-control" id="regAddress" rows="2" placeholder="Street, Building, City..."
+                        required></textarea>
+                </div>
+                <div class="col-12">
+                    <label for="regEmergency" class="form-label">Emergency Contact Number</label>
+                    <input type="text" class="form-control" id="regEmergency" placeholder="10-digit number"
+                        maxlength="10" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="regPassword" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="regPassword" placeholder="Create password" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="regConfirmPassword" placeholder="Repeat password"
+                        required>
+                    <div id="passwordError" class="error-message">Passwords do not match.</div>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <button type="submit"
+                        class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                        <span>Register & Continue</span>
+                        <i data-lucide="user-plus" class="ms-2" size="18"></i>
+                        <div class="spinner-border spinner-border-sm loading-spinner ms-2" role="status"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0" style="border-radius: 20px;">
+                <div class="modal-body text-center p-5">
+                    <div class="mb-4 text-success">
+                        <i data-lucide="check-circle" size="64"></i>
+                    </div>
+                    <h3>Registration Successful!</h3>
+                    <p class="text-muted">Your account has been created. Redirecting to dashboard...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- App Config -->
+    <script src="config.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Lucide icons
+            lucide.createIcons();
+
+            // Form Transitions
+            function showStep(stepId) {
+                $('.step-form').removeClass('active');
+                $('#' + stepId).addClass('active');
+
+                if (stepId === 'step-register') {
+                    $('#mainContainer').addClass('form-expanded');
+                } else {
+                    $('#mainContainer').removeClass('form-expanded');
+                }
+            }
+
+            $('.back-btn').click(function () {
+                showStep('step-mobile');
+            });
+
+            // --- STEP 1: MOBILE FORM ---
+            $('#mobileForm').on('submit', function (e) {
+                e.preventDefault();
+                const mobile = $('#mobileNumber').val();
+                const $btn = $(this).find('button');
+                const $spinner = $btn.find('.loading-spinner');
+
+                // Validate Indian mobile number
+                const mobileRegex = /^[6-9]\d{9}$/;
+                if (!mobileRegex.test(mobile)) {
+                    $('#mobileError').fadeIn();
+                    return;
+                }
+                $('#mobileError').fadeOut();
+
+                // Mocking AJAX call to check if patient exists
+                $btn.prop('disabled', true);
+                $spinner.show();
+
+                setTimeout(() => {
+                    $btn.prop('disabled', false);
+                    $spinner.hide();
+
+                    /* 
+                    EXAMPLE AJAX CALL:
+                    $.ajax({
+                        url: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.CHECK_STATUS,
+                        type: 'POST',
+                        data: { mobile: mobile },
+                        success: function(response) {
+                            if (response.exists) {
+                                $('#loginMobile').val(mobile);
+                                showStep('step-login');
+                            } else {
+                                $('#regMobile').val(mobile);
+                                showStep('step-register');
+                            }
+                        }
+                    });
+                    */
+
+                    // For demo logic:
+                    // If ending with '0', assume exists (Login)
+                    // Otherwise, assume new (Register)
+                    if (mobile.endsWith('0')) {
+                        $('#loginMobile').val(mobile);
+                        showStep('step-login');
+                    } else {
+                        $('#regMobile').val(mobile);
+                        showStep('step-register');
+                    }
+                }, 1000);
+            });
+
+            // --- STEP 2: LOGIN FORM ---
+            $('#loginForm').on('submit', function (e) {
+                e.preventDefault();
+                const password = $('#loginPassword').val();
+                const $btn = $(this).find('button');
+                const $spinner = $btn.find('.loading-spinner');
+
+                if (!password) {
+                    $('#loginError').text('Please enter your password').fadeIn();
+                    return;
+                }
+
+                $btn.prop('disabled', true);
+                $spinner.show();
+
+                setTimeout(() => {
+                    $btn.prop('disabled', false);
+                    $spinner.hide();
+
+                    /*
+                    EXAMPLE AJAX CALL:
+                    $.ajax({
+                        url: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.LOGIN,
+                        type: 'POST',
+                        data: { mobile: $('#loginMobile').val(), password: password },
+                        success: function(response) {
+                             window.location.href = '/patient-dashboard.html';
+                        },
+                        error: function() {
+                             $('#loginError').text('Invalid password. Please try again.').fadeIn();
+                        }
+                    });
+                    */
+
+                    if (password === 'password123') { // Mock check
+                        window.location.href = '/patient-dashboard.html'; // Redirect
+                    } else {
+                        $('#loginError').text('Invalid password. Please try again.').fadeIn();
+                    }
+                }, 1000);
+            });
+
+            // --- STEP 3: REGISTRATION FORM ---
+            $('#registerForm').on('submit', function (e) {
+                e.preventDefault();
+                const pass = $('#regPassword').val();
+                const confirmPass = $('#regConfirmPassword').val();
+                const emergency = $('#regEmergency').val();
+
+                // Password match validation
+                if (pass !== confirmPass) {
+                    $('#passwordError').fadeIn();
+                    return;
+                }
+                $('#passwordError').fadeOut();
+
+                // Emergency contact validation
+                if (!/^[6-9]\d{9}$/.test(emergency)) {
+                    alert('Please enter a valid 10-digit emergency contact number.');
+                    return;
+                }
+
+                const $btn = $(this).find('button');
+                const $spinner = $btn.find('.loading-spinner');
+
+                $btn.prop('disabled', true);
+                $spinner.show();
+
+                const formData = {
+                    name: $('#regFullName').val(),
+                    mobile: $('#regMobile').val(),
+                    email: $('#regEmail').val(),
+                    gender: $('input[name="gender"]:checked').val(),
+                    dob: $('#regDob').val(),
+                    address: $('#regAddress').val(),
+                    emergency: emergency,
+                    password: pass
+                };
+
+                setTimeout(() => {
+                    $btn.prop('disabled', false);
+                    $spinner.hide();
+
+                    /* 
+                    EXAMPLE AJAX CALL:
+                    $.ajax({
+                        url: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.REGISTER,
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(response) {
+                            $('#successModal').modal('show');
+                            setTimeout(() => {
+                                window.location.href = '/patient-dashboard.html';
+                            }, 2000);
+                        }
+                    });
+                    */
+
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+
+                    setTimeout(() => {
+                        alert('Registration Data Saved: ' + JSON.stringify(formData, null, 2));
+                        // In real scenario: window.location.href = '/dashboard';
+                    }, 1500);
+
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+
+</html>
