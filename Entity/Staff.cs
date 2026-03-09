@@ -6,7 +6,7 @@ namespace BackendApi.Api.Entity
     public class Staff
 {
     [Key]
-    public Guid staffid { get; set; } = Guid.NewGuid();
+    public Guid staffid { get; set; } 
     public Guid tenantid { get; set; }
     public Guid departmentid { get; set; }
     [StringLength(200)]
@@ -23,6 +23,7 @@ namespace BackendApi.Api.Entity
     public string? createdby { get; set; }
     public DateTime? updateddate { get; set; }
     public string? updatedby { get; set; }
+    public Guid? userid { get; set; }
 
 }
 

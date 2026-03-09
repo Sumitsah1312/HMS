@@ -14,6 +14,7 @@ namespace BackendApi.Api.Models
         completed,
         ongoing,
         waiting,
-        cancelled
+        cancelled,
+        referred
     }
 }

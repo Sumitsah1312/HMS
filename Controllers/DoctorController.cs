@@ -16,35 +16,71 @@ namespace BackendApi.Api.Controllers.V1;
 [Route("api/[controller]/[action]")]
 [ApiController]
 // [Authorize(Policy = "UserPolicy")]
-public class DoctorController(IStaffRepository _doctorRepository) : ControllerBase
+public class DoctorController(IStaffRepository _doctorRepository, IPatientRepository _patientRepository) : ControllerBase
 {
+    // private async Task<(Guid doctorId, Guid tenantId)> GetCurrentDoctor()
+    // {
+    //      var tenantid=User.Identity.GetTenantId();
+    //     var userid=User.Identity.GetUserId();
+
+    //     if (string.IsNullOrEmpty(userid)) return (Guid.Empty, tenantId);
+        
+    //     var doctor = await _doctorRepository.GetDoctorByEmailAsync(email, tenantId);
+    //     return (doctor?.staffid ?? Guid.Empty, tenantId);
+    // }
+
     [HttpGet]
-    public async Task<IActionResult> GetDashboardStats(Guid doctorId, Guid tenantId)
+    public async Task<IActionResult> GetDashboardStats()
     {
-        var stats = await _doctorRepository.GetDoctorDashboardStatsAsync(doctorId, tenantId);
+
+         var tenantid=User.Identity.GetTenantId();
+        var userid=User.Identity.GetUserId();
+
+        var stats = await _doctorRepository.GetDoctorDashboardStatsAsync(Guid.Parse(userid), tenantid);
         return Ok(stats);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetQueue(Guid doctorId, Guid tenantId)
+    public async Task<IActionResult> GetQueue()
     {
-        var queue = await _doctorRepository.GetDoctorQueueAsync(doctorId, tenantId);
+         var tenantid=User.Identity.GetTenantId();
+        var userid=User.Identity.GetUserId();
+
+        var queue = await _doctorRepository.GetDoctorQueueAsync(userid, tenantid);
         return Ok(queue);
     }
 
     [HttpPost]
-    public async Task<IActionResult> ReassignPatient(ReassignPatientModel model, Guid tenantId)
+    public async Task<IActionResult> ReassignPatient(ReassignPatientModel model)
     {
+        var tenantId = User.Identity.GetTenantId();
         var result = await _doctorRepository.ReassignPatientAsync(model, tenantId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> UpdateStatus(Guid visitId, string status, Guid tenantId)
+    public async Task<IActionResult> UpdateStatus(Guid visitId, string status)
     {
+        var tenantId = User.Identity.GetTenantId();
         var result = await _doctorRepository.UpdateVisitStatusAsync(visitId, status, tenantId);
         if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetReferralDepartments()
+    {
+        var tenantId = User.Identity.GetTenantId();
+        var result = await _patientRepository.GetDepartmentDropdown(tenantId);
+        return Ok(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetReferralStaff(Guid departmentId)
+    {
+        var tenantId = User.Identity.GetTenantId();
+        var result = await _patientRepository.GetStaffDropdown(tenantId, departmentId);
         return Ok(result);
     }
 }

@@ -227,8 +227,7 @@ namespace BackendApi.Api.Services
             using var transaction = await _ctx.Database.BeginTransactionAsync();
             try
             {
-                await _ctx.Staff.AddAsync(staff);
-                await _ctx.SaveChangesAsync();
+                
 
                  var user = new ApplicationUser
                 {
@@ -245,6 +244,9 @@ namespace BackendApi.Api.Services
                     return result;
                 
                 }
+                staff.userid=user.Id;
+                await _ctx.Staff.AddAsync(staff);
+                await _ctx.SaveChangesAsync();
                  // Assign Tenant Role
                 if (!await _roleManager.RoleExistsAsync(EnumModelRole.doctor.ToString()))
                 {
