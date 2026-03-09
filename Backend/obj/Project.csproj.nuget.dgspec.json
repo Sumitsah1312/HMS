@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Sumit Data\\Project me\\BackendApi\\Project\\Project.csproj": {}
+    "C:\\Sumit Data\\Project me\\BackendApi\\Project\\Backend\\Project.csproj": {}
   },
   "projects": {
-    "c:\\Sumit Data\\Project me\\BackendApi\\Project\\Project.csproj": {
+    "C:\\Sumit Data\\Project me\\BackendApi\\Project\\Backend\\Project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Sumit Data\\Project me\\BackendApi\\Project\\Project.csproj",
+        "projectUniqueName": "C:\\Sumit Data\\Project me\\BackendApi\\Project\\Backend\\Project.csproj",
         "projectName": "Project",
-        "projectPath": "c:\\Sumit Data\\Project me\\BackendApi\\Project\\Project.csproj",
+        "projectPath": "C:\\Sumit Data\\Project me\\BackendApi\\Project\\Backend\\Project.csproj",
         "packagesPath": "C:\\Users\\MASH\\.nuget\\packages\\",
-        "outputPath": "c:\\Sumit Data\\Project me\\BackendApi\\Project\\obj\\",
+        "outputPath": "C:\\Sumit Data\\Project me\\BackendApi\\Project\\Backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
