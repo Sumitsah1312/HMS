@@ -17,4 +17,4 @@ COPY --from=build /app/out .
 EXPOSE 8080
 
 # Start app
-ENTRYPOINT ["dotnet", "/Project.dll"]
+ENTRYPOINT ["dotnet", "Project.dll"]
