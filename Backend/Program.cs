@@ -118,7 +118,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
+    db.Database.Migrate();
+}
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
